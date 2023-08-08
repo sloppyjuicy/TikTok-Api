@@ -1,12 +1,17 @@
 from TikTokApi import TikTokApi
 import os
+import pytest
 
-api = TikTokApi.get_instance(
-    custom_verifyFp=os.environ.get("verifyFp", None), use_test_endpoints=True
-)
+ms_token = os.environ.get("ms_token", None)
 
 
-def test_trending():
-    assert abs(len(api.by_trending(5)) - 5) <= 2
-    assert abs(len(api.by_trending(10)) - 10) <= 2
-    assert abs(len(api.by_trending(20)) - 20) <= 2
+@pytest.mark.asyncio
+async def test_user_info():
+    api = TikTokApi()
+    async with api:
+        await api.create_sessions(ms_tokens=[ms_token], num_sessions=1, sleep_after=3)
+        count = 0
+        async for video in api.trending.videos(count=100):
+            count += 1
+
+        assert count >= 100

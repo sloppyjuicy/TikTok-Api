@@ -1,52 +1,51 @@
 from TikTokApi import TikTokApi
 import os
+import pytest
 
-api = TikTokApi.get_instance(
-    custom_verifyFp=os.environ.get("verifyFp", None), use_test_endpoints=True
-)
+username = "charlidamelio"
+user_id = "5831967"
+sec_uid = "MS4wLjABAAAA-VASjiXTh7wDDyXvjk10VFhMWUAoxr8bgfO1kAL1-9s"
+
+ms_token = os.environ.get("ms_token", None)
 
 
-def test_user():
-    assert (
-        api.get_user("charlidamelio")["userInfo"]["user"]["uniqueId"] == "charlidamelio"
-    )
-    assert api.get_user_object("charlidamelio")["uniqueId"] == "charlidamelio"
-    assert (
-        abs(
-            len(
-                api.user_posts(
-                    userID="5058536",
-                    secUID="MS4wLjABAAAAoRsCq3Yj6BtSKBCQ4rf3WQYxIaxe5VetwJfYzW_U5K8",
-                    count=5,
-                )
-            )
-            - 5
-        )
-        <= 1
-    )
-    assert (
-        abs(
-            len(
-                api.user_posts(
-                    userID="5058536",
-                    secUID="MS4wLjABAAAAoRsCq3Yj6BtSKBCQ4rf3WQYxIaxe5VetwJfYzW_U5K8",
-                    count=10,
-                )
-            )
-            - 10
-        )
-        <= 1
-    )
-    assert (
-        abs(
-            len(
-                api.user_posts(
-                    userID="5058536",
-                    secUID="MS4wLjABAAAAoRsCq3Yj6BtSKBCQ4rf3WQYxIaxe5VetwJfYzW_U5K8",
-                    count=30,
-                )
-            )
-            - 30
-        )
-        <= 1
-    )
+@pytest.mark.asyncio
+async def test_user_info():
+    api = TikTokApi()
+    async with api:
+        await api.create_sessions(ms_tokens=[ms_token], num_sessions=1, sleep_after=3)
+        user = api.user(username=username)
+        await user.info()
+
+        assert user.username == username
+        assert user.user_id == user_id
+        assert user.sec_uid == sec_uid
+
+
+@pytest.mark.asyncio
+async def test_user_videos():
+    api = TikTokApi()
+    async with api:
+        await api.create_sessions(ms_tokens=[ms_token], num_sessions=1, sleep_after=3)
+        user = api.user(username=username, sec_uid=sec_uid, user_id=user_id)
+
+        count = 0
+        async for video in user.videos(count=30):
+            count += 1
+
+        assert count >= 30
+
+
+@pytest.mark.asyncio
+async def test_user_likes():
+    pytest.skip("Not implemented yet")
+    api = TikTokApi()
+    async with api:
+        await api.create_sessions(ms_tokens=[ms_token], num_sessions=1, sleep_after=3)
+        user = api.user(username=username, sec_uid=sec_uid, user_id=user_id)
+
+        count = 0
+        async for video in user.liked(count=30):
+            count += 1
+
+        assert count >= 30

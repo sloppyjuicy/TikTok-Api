@@ -7,7 +7,7 @@ on:
     branches:
       - master
       - nightly
-      - 'releases/*'
+      - "releases/*"
 
 jobs:
   Unit-Tests:
@@ -17,10 +17,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest]
-        python-version: [3.7, 3.9]
+        python-version: ["3.9", "3.11"]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
       - uses: microsoft/playwright-github-action@v1
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -35,6 +34,5 @@ jobs:
 
       - name: Run Tests
         env:
-          PROXY: ${{ secrets.PROXY }}
-          verifyFp: ${{ secrets.verifyFp }}
+          ms_token: ${{ secrets.ms_token }}
         run: pytest tests

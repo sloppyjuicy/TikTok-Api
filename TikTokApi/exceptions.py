@@ -1,31 +1,35 @@
-class TikTokCaptchaError(Exception):
-    def __init__(
-        self,
-        message="TikTok blocks this request displaying a Captcha \nTip: Consider using a proxy or a custom_verifyFp as method parameters",
-    ):
+class TikTokException(Exception):
+    """Generic exception that all other TikTok errors are children of."""
+
+    def __init__(self, raw_response, message, error_code=None):
+        self.error_code = error_code
+        self.raw_response = raw_response
         self.message = message
         super().__init__(self.message)
 
-
-class TikTokNotFoundError(Exception):
-    def __init__(self, message="The requested object does not exists"):
-        self.message = message
-        super().__init__(self.message)
+    def __str__(self):
+        return f"{self.error_code} -> {self.message}"
 
 
-class EmptyResponseError(Exception):
-    def __init__(self, message="TikTok sent no data back"):
-        self.message = message
-        super().__init__(self.message)
+class CaptchaException(TikTokException):
+    """TikTok is showing captcha"""
 
 
-class JSONDecodeFailure(Exception):
-    def __init__(self, message="TikTok sent invalid JSON back"):
-        self.message = message
-        super().__init__(self.message)
+class NotFoundException(TikTokException):
+    """TikTok indicated that this object does not exist."""
 
 
-class TikTokNotAvailableError(Exception):
-    def __init__(self, message="The requested object is not available in this region"):
-        self.message = message
-        super().__init__(self.message)
+class EmptyResponseException(TikTokException):
+    """TikTok sent back an empty response."""
+
+
+class SoundRemovedException(TikTokException):
+    """This TikTok sound has no id from being removed by TikTok."""
+
+
+class InvalidJSONException(TikTokException):
+    """TikTok returned invalid JSON.""" 
+
+
+class InvalidResponseException(TikTokException):
+    """The response from TikTok was invalid."""
